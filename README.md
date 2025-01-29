@@ -11,6 +11,8 @@ Routing: React Router DOM
 
 Credentials
 
+deploy Link: "https://riolabz-server.onrender.com"
+
 Admin:
  email:"admin@gmail.com"
  password:'1234567890'
