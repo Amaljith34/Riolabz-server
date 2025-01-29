@@ -14,7 +14,7 @@ To set up the project locally, follow these steps:
 git clone https://github.com/Amaljith34/Artifitia-server.git
 npm install
 Set Up Environment Variables
-Create a .env file in the backend directory and define the following variables
+Create a .env file 
 Run the Project
 node server.js
 
