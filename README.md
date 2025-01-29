@@ -7,7 +7,17 @@ Authentication: bcrypt
 Validation:joi
 Routing: React Router DOM
 Installation Instructions
-To set up the project locally, follow these steps:
+
+
+Credentials
+
+Admin:
+ email:"admin@gmail.com"
+ password:'1234567890'
+User:
+ email:"amaljith@gmail.com"
+ password:"1234567890"
+
 
 1. Clone the Repository
 ```bash
