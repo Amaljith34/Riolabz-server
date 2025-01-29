@@ -5,19 +5,19 @@ import Cart from "../../models/cartSchema/cart.js";
 import { handleError } from "../../utils/handleServerError.js";
 
 export const addToCart = async (req, res) => {
-  try {
+  
     const userId = req.params.id;
     const { productId, quantity } = req.body;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ success: false, message: "Invalid User Id" });
+      throw new AppError('Invalid User Id',400)
     }
     const user = await User.findById(userId);
     if(!user){
-        return res.status(404).json({ success: false, message: "User not found" });
+      throw new AppError('User not found',404)
     }
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      throw new AppError('Product not found',404)
     }
     let cart = await Cart.findOne({ userId });
 
@@ -40,58 +40,52 @@ export const addToCart = async (req, res) => {
         cart.products.push({ productId, quantity });
       }
     }
-
     await user.save();
     await cart.save();
     res.status(200).json({success: true, data: cart,message: `Product added to cart successfully`, });
-  } catch (error) {
-    handleError(res, error);
-  }
+
 };
 
 
 
 
 export const getCart = async (req, res) => {
-  try {
+  
     const userId = req.params.id;
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ success: false, message: `No user found` });
+      throw new AppError('Invalid User Id',400)
     }
 
     const cart = await Cart.findOne({ userId }).populate('products.productId');
     if (!cart) {
-      return res.status(404).json({ success: false, message: "Cart not found" });
+      throw new AppError('Cart not found',404)
     }
 
     res.status(200).json({ success: true, data: cart, message: "Cart fetched successfully" });
-  } catch (error) {
-    handleError(res, error);  }
 };
 
 
 
 
 export const removeCart = async (req, res) => {
-  try {
+
     const userId = req.params.id;
     const { productId } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ success: false, message: "User not found" });
+      throw new AppError('Invalid User Id',400)
     }
-
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.status(404).json({ success: false, message: "Cart not found" });
+      throw new AppError('Cart not found',404)
     }
 
     const productIndex = cart.products.findIndex(
       (product) => product.productId.toString() === productId
     );
     if (productIndex === -1) {
-      return res.status(404).json({ success: false, message: "Product not found in cart" });
+      throw new AppError('Product not found in cart',404)
     }
 
     cart.products.splice(productIndex, 1);
@@ -104,7 +98,5 @@ export const removeCart = async (req, res) => {
     }
 
     res.status(200).json({ success: true, message: "Product removed from cart successfully" });
-  } catch (error) {
-    handleError(res, error);  }
 };
 

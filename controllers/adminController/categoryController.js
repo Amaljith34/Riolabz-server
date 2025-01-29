@@ -1,26 +1,19 @@
+import AppError from "../../middlewares/AppError.js";
 import Category from "../../models/categorySchema/category.js";
 
 export const AddCategory = async (req, res) => {
     let { name } = req.body;
     if (!name || name.trim() === "") {
-      return res.status(400).json({ success: false, message: "Category name is required." });
+      throw new AppError('Category name is required.',400)
     }
     name = name.trim();
-    try {
       const existingCategory = await Category.findOne({ name });
       if (existingCategory) {
-        return res.status(400).json({ success: false, message: "Category already exists." });
+        throw new AppError('Category already exists.',400)
       }
       const newCategory = new Category({ name });
       await newCategory.save();
       return res.status(200).json({success: true,message: "Category added successfully.", data: newCategory});
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({
-        success: false,
-        message: "An error occurred while adding the category.",
-        error: err.message,
-      });
-    }
+    
   };
   

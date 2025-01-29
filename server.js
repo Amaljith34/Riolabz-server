@@ -13,14 +13,13 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
 
-app.use('/api',adminRouter)
+app.use('/api/admin',adminRouter)
 app.use('/api',baseRouter)
-app.use('/api',userRouter)
-
+app.use('/api/user',userRouter)
 
 
 async function main(){
-    try {
+    try { 
         await mongoose.connect(process.env.MONGODB_CONNECTION)
         console.log("MongoDB connected successful");
     } catch (error) {

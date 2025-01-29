@@ -1,13 +1,38 @@
-import User from "../models/userSchema/user.js";
+import jwt from 'jsonwebtoken'
+import User from '../models/userSchema/user.js';
+import AppError from './AppError.js';
 
-export const adminMiddleware = async (req, res, next) => {
-    try {
-      const user = await User.findById(req.user); 
-      if (user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied, Admins only' });
-      }
-      next(); 
-    } catch (error) {
-      return res.status(500).json({ message: 'Internal server error' });
+const JWT_SECRET = process.env.TOKEN_SECRET || "your_jwt_secret";
+
+export const checkAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw new AppError("Authorization token is required.", 401);
     }
-  };
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const { _id: id } = decoded;
+
+    if (!id) {
+      throw new AppError("Invalid token. Admin ID not found.", 401);
+    }
+
+    const admin = await User.findById(id);
+
+    if (!admin || admin.role !== "admin") {
+      throw new AppError("Access denied. Admin privileges required.", 403);
+    }
+
+    next();
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
+  }
+};
+
+

@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/AppError.js"
 import { signUpValidation } from "../../middlewares/joiValidation.js"
 import User from "../../models/userSchema/user.js"
 import { comparePassword, hashedPassword } from "../../utils/bcrypt.js"
@@ -7,7 +8,7 @@ export const registration=async(req,res)=>{
         const {username,email,password}=req.body
         const existingUser=await User.findOne({email})
         if(existingUser){
-            return res.status(400).json({success:false,message:"Email already exists..."})
+            throw new AppError('Email already exists...',400)
         }
         const validatedUser=await signUpValidation.validateAsync({username,email,password})
         const hashPassword=await hashedPassword(password)
@@ -25,18 +26,17 @@ export const Login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-        return res.status(401).json({ success: false, message: "Invalid user" });
+        throw new AppError('Invalid user',401)
     }
     const validUser = await comparePassword(password, user.password); 
-
     if (!validUser) {
-        return res.status(400).json({ success: false, message: "Incorrect password" });
+        throw new AppError('Incorrect password ',400)
     }
     if (user.isBlocked) { 
-        return res.status(403).json({ success: false, message: "Sorry, you are blocked" });
+        throw new AppError('Sorry, you are blocked',403)
     }
     if(user.status=='pending'){
-        return res.status(402).json({success:false,message:"Registration request is pending"})
+        throw new AppError('Registration request is pending',402)
     }
     const token = generateToken(user.id);
     if (user.role === "admin") {
